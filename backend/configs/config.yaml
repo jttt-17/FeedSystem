@@ -1,0 +1,27 @@
+server:
+  port: 8080
+
+database:             #启动：net start mysql80  ->  mysql -u root -p
+  host: localhost      #关闭：exit  ->  net stop mysql80
+  port: 3306
+  user: root
+  password: 123456
+  dbname: feedsystem
+
+redis:                #docker开启服务
+  host: localhost
+  port: 6379
+  password: 123456
+  db: 0
+
+rabbitmq:              #docker开启服务后，rabbitmq管理平台：http://localhost:15672
+  host: localhost
+  port: 5672
+  username: admin
+  password: password123
+
+observability:
+  pprof:
+    enabled: true
+    api_addr: localhost:6060
+    worker_addr: localhost:6061
