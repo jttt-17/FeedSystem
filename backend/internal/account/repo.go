@@ -1,3 +1,4 @@
+// 直接对接数据库，对数据库进行增删改查
 package account
 
 import (
@@ -6,7 +7,7 @@ import (
 	"gorm.io/gorm"
 )
 
-// 为什么要把db包装起来
+// 封装DB：解耦
 type AccountRepository struct {
 	db *gorm.DB
 }
@@ -15,7 +16,6 @@ func NewAccountRepository(db *gorm.DB) *AccountRepository {
 	return &AccountRepository{db: db}
 }
 
-// WithContext(ctx)有什么用，上下文是什么意思
 func (ar *AccountRepository) CreateAccount(ctx context.Context, account *Account) error {
 	if err := ar.db.WithContext(ctx).Create(account).Error; err != nil {
 		return err
@@ -36,7 +36,6 @@ func (ar *AccountRepository) Rename(ctx context.Context, id uint, newUsername st
 	return nil
 }
 
-// Transaction内部为什么要搞一个函数
 // 改名和改token（jwt）,Transaction实现原子操作
 func (ar *AccountRepository) RenameWithToken(ctx context.Context, id uint, newUsername string, token string) error {
 	return ar.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
@@ -84,7 +83,6 @@ func (ar *AccountRepository) Login(ctx context.Context, id uint, token, refreshT
 	return nil
 }
 
-// 服务端是如何查询到对应用户的密钥的
 func (ar *AccountRepository) Logout(ctx context.Context, id uint) error {
 	if err := ar.db.WithContext(ctx).Model(&Account{}).Where("id = ?", id).Updates(map[string]interface{}{"token": "", "refresh_token": ""}).Error; err != nil {
 		return err
