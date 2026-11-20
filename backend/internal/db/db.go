@@ -4,6 +4,7 @@ package db
 import (
 	"fmt"
 
+	"github.com/jttt-17/feedsystem/backend/internal/account"
 	"github.com/jttt-17/feedsystem/backend/internal/config"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
@@ -19,6 +20,12 @@ func NewDB(dbcfg config.DatabaseConfig) (*gorm.DB, error) {
 	}
 
 	return db, nil
+}
+
+func AutoMigrate(db *gorm.DB) error {
+	return db.AutoMigrate(
+		&account.Account{},
+	)
 }
 
 func CloseDB(db *gorm.DB) error {

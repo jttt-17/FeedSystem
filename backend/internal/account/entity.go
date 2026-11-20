@@ -2,7 +2,7 @@ package account
 
 type Account struct {
 	ID           uint   `gorm:"primaryKey" json:"id"`
-	Username     string `gorm:"unique" json:"username"`
+	Username     string `gorm:"unique" json:"username"` //unique实现了无法重复注册
 	Password     string `json:"-"`
 	Token        string `json:"-"`                                             //jwt
 	RefreshToken string `json:"-"`                                             //jwt

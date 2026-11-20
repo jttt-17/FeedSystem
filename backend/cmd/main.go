@@ -2,9 +2,13 @@
 package main
 
 import (
+	"context"
 	"log"
 	"os"
 	"strconv"
+	"time"
+
+	rediscache "github.com/jttt-17/feedsystem/backend/internal/middleware/redis"
 
 	"github.com/joho/godotenv" //from dotenv import load_dotenv
 	"github.com/jttt-17/feedsystem/backend/internal/config"
@@ -39,15 +43,33 @@ func main() {
 	if err != nil {
 		log.Fatalf("Failed to connect database: %v", err)
 	}
-	// if err := db.AutoMigrate(sqlDB); err != nil {
-	// 	log.Fatalf("Failed to auto migrate database: %v", err)
-	// }
+	if err := db.AutoMigrate(sqlDB); err != nil {
+		log.Fatalf("Failed to auto migrate database: %v", err)
+	}
 	defer db.CloseDB(sqlDB)
 
+	// 连接 Redis (可选，用于缓存)
+	cache, err := rediscache.NewFromEnv(&cfg.Redis)
+	if err != nil {
+		log.Printf("Redis config error (cache disabled): %v", err)
+		cache = nil
+	} else {
+		pingCtx, cancel := context.WithTimeout(context.Background(), 300*time.Millisecond)
+		defer cancel()
+		if err := cache.Ping(pingCtx); err != nil {
+			log.Printf("Redis not available (cache disabled): %v", err)
+			_ = cache.Close()
+			cache = nil
+		} else {
+			defer cache.Close()
+			log.Printf("Redis connected (cache enabled)")
+		}
+	}
+
 	//设置路由
-	r := apphttp.SetRouter(sqlDB)
+	r := apphttp.SetRouter(sqlDB, cache)
 	log.Printf("Server is running on port %d", cfg.Server.Port)
-	if err := r.Run(":" + strconv.Itoa(cfg.Server.Port)); err != nil {
+	if err := r.Run("127.0.0.1:" + strconv.Itoa(cfg.Server.Port)); err != nil {
 		log.Fatalf("Failed to run server: %v", err)
 	}
 

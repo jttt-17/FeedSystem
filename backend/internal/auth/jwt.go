@@ -1,3 +1,4 @@
+// 产生accesstoken、refreshtoken，解析token
 // internal/auth/jwt.go
 package auth
 

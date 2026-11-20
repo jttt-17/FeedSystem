@@ -100,7 +100,9 @@ func (h *AccountHandler) ChangePassword(c *gin.Context) {
 		c.JSON(400, gin.H{
 			"error": "unsuccessfully password changed",
 		})
+		return
 	}
+	c.JSON(200, gin.H{"message": "successfully password changed"})
 
 }
 
@@ -261,7 +263,7 @@ func (h *AccountHandler) UploadAvatar(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"avatar_url": avatarURL})
 }
 
-func (h *AccountHandler) updateProfile(c *gin.Context) {
+func (h *AccountHandler) UpdateProfile(c *gin.Context) {
 	accountID, err := getAccountID(c)
 	if err != nil {
 		c.JSON(http.StatusUnauthorized, gin.H{
